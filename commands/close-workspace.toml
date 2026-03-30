@@ -1,0 +1,8 @@
+[command]
+name = "close-workspace"
+description = "Summarize the session and close the workspace"
+help = "Generates a technical summary, saves it to .gemini-workspace-history, and exits the session."
+
+[[steps]]
+type = "agent"
+prompt = "Please provide a concise technical summary of what we've done in this session, focusing on file changes and architectural decisions. Save this summary to `.gemini-workspace-history/summary-<TIMESTAMP>.md` (replacing <TIMESTAMP> with current time). After saving, say 'Workspace closed' and exit the session using the `/exit` command."
