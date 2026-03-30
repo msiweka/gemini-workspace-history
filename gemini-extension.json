@@ -1,0 +1,30 @@
+{
+  "name": "workspace-history",
+  "version": "1.0.0",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "name": "restore-context",
+            "type": "command",
+            "command": "node hooks/on-start.js"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "exit",
+        "hooks": [
+          {
+            "name": "archive-session",
+            "type": "command",
+            "command": "node hooks/on-end.js"
+          }
+        ]
+      }
+    ]
+  }
+}
