@@ -1,6 +1,7 @@
 {
   "name": "workspace-history",
   "version": "1.0.0",
+  "contextFileName": ".gemini-workspace-history/active-context.md",
   "hooks": {
     "SessionStart": [
       {
@@ -26,5 +27,11 @@
         ]
       }
     ]
-  }
+  },
+  "skills": [
+    {
+      "name": "workspace-manager",
+      "path": "skills/workspace-manager/SKILL.md"
+    }
+  ]
 }
