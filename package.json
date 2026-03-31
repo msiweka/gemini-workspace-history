@@ -1,6 +1,6 @@
 {
   "name": "gemini-workspace-history",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Workspace-specific session history and summaries for Gemini CLI",
   "type": "module"
 }
