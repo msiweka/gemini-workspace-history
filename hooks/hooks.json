@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "name": "restore-context",
+            "type": "command",
+            "command": "node ${extensionPath}/hooks/on-start.js"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "exit",
+        "hooks": [
+          {
+            "name": "archive-session",
+            "type": "command",
+            "command": "node ${extensionPath}/hooks/on-end.js"
+          }
+        ]
+      }
+    ]
+  }
+}

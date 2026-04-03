@@ -1,0 +1,11 @@
+{
+  "name": "workspace-history",
+  "version": "0.1.0",
+  "contextFileName": ".gemini-workspace-history/active-context.md",
+  "skills": [
+    {
+      "name": "workspace-summarizer",
+      "path": "skills/workspace-summarizer/SKILL.md"
+    }
+  ]
+}

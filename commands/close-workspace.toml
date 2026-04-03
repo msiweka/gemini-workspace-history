@@ -1,0 +1,12 @@
+description = "Summarize the session and close the workspace"
+
+prompt = """
+Provide a detailed technical summary of this session's progress. Your summary MUST follow this structure:
+1. ## Overview: A high-level summary of the session's goals and outcomes.
+2. ## Technical Changes: A bulleted list of specific file modifications, new files created, and key logic changes.
+3. ## Architectural Decisions: A summary of the design choices and technical trade-offs made.
+
+Use the `node commands/summarize.js "<SUMMARY>"` command to save this summary (replace <SUMMARY> with your formatted Markdown summary). 
+
+After saving, say 'Summarized and saved your work. See you next time :)' and end the session.
+"""
