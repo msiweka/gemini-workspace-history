@@ -1,37 +1,11 @@
 {
   "name": "workspace-history",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "contextFileName": ".gemini-workspace-history/active-context.md",
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "startup",
-        "hooks": [
-          {
-            "name": "restore-context",
-            "type": "command",
-            "command": "node hooks/on-start.js"
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "matcher": "exit",
-        "hooks": [
-          {
-            "name": "archive-session",
-            "type": "command",
-            "command": "node hooks/on-end.js"
-          }
-        ]
-      }
-    ]
-  },
   "skills": [
     {
-      "name": "workspace-manager",
-      "path": "skills/workspace-manager/SKILL.md"
+      "name": "workspace-summarizer",
+      "path": "skills/workspace-summarizer/SKILL.md"
     }
   ]
 }

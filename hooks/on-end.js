@@ -2,34 +2,60 @@ import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
 import { promisify } from 'util';
-import readline from 'readline';
 
 const gzip = promisify(zlib.gzip);
 const HISTORY_DIR = '.gemini-workspace-history';
 
 async function main() {
-    const rl = readline.createInterface({ input: process.stdin });
-    
     let input = '';
-    for await (const line of rl) {
-        input += line;
+    try {
+        // Read stdin synchronously to ensure we get data before process exit
+        input = fs.readFileSync(0, 'utf8');
+    } catch (e) {
+        console.error(`Error reading stdin: ${e.message}`);
     }
 
-    if (!input) return;
+    if (!input || input.trim() === '') {
+        console.error('No input received on stdin or input is empty');
+        return;
+    }
 
-    const data = JSON.parse(input);
+    let data;
+    try {
+        data = JSON.parse(input);
+    } catch (e) {
+        log(`Failed to parse input: ${e.message}`);
+        return;
+    }
+
     const transcriptPath = data.transcript_path;
 
-    if (!transcriptPath || !fs.existsSync(transcriptPath)) return;
+    if (!transcriptPath || !fs.existsSync(transcriptPath)) {
+        console.error(`Transcript file missing: ${transcriptPath}`);
+        return;
+    }
 
     const now = new Date();
     const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}`;
     const destination = path.join(HISTORY_DIR, `session-${timestamp}.json.gz`);
 
-    const transcript = fs.readFileSync(transcriptPath);
-    const compressed = await gzip(transcript);
+    if (!fs.existsSync(HISTORY_DIR)) {
+        try {
+            fs.mkdirSync(HISTORY_DIR, { recursive: true });
+        } catch (e) {
+            console.error(`Failed to create HISTORY_DIR: ${e.message}`);
+            return;
+        }
+    }
 
-    fs.writeFileSync(destination, compressed);
+    try {
+        const transcript = fs.readFileSync(transcriptPath);
+        const compressed = await gzip(transcript);
+
+        fs.writeFileSync(destination, compressed);
+    } catch (e) {
+        console.error(`Error during compression/writing: ${e.message}`);
+    }
 }
 
 main().catch(console.error);
