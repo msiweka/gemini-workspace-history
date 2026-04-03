@@ -8,7 +8,8 @@ Gemini Workspace History is a Gemini CLI extension designed to provide continuit
 
 - **Context Restoration:** Automatic injection of the latest session summary (`active-context.md`) into the current context.
 - **Session Archiving:** Automatic Gzip compression of session transcripts for long-term history.
-- **Controlled Exit:** Custom `/close-workspace` command ensures a high-quality summary is generated before closing.
+- **Controlled Exit:** Custom `close-workspace` command ensures a high-quality summary is generated before closing.
+- **Workspace Summarizer Skill:** A dedicated skill to assist in generating and managing session summaries.
 - **Local Storage:** All history (summaries, compressed transcripts, and active context) is kept within the project's `.gemini-workspace-history/` directory.
 
 ## Getting Started
@@ -25,11 +26,11 @@ gemini extension link .
 
 1. **Start:** When you start a new session (`gemini`), the `on-start.js` hook identifies the latest summary and prepares `active-context.md`.
 2. **Work:** The Gemini CLI automatically loads `active-context.md` into your session context.
-3. **End:** Use the `/close-workspace` command to summarize your work and exit cleanly.
+3. **End:** Use the `/close-workspace` (or your custom command name) to summarize your work and exit cleanly.
 
 ### Commands
 
-- `/close-workspace`: Prompts the agent to write a technical summary of the current session and then exits. This is the recommended way to end a session to ensure continuity.
+- `/close-workspace`: Prompts the agent to write a structured technical summary of the current session and then saves it using `commands/summarize.js` before exiting. This is the recommended way to end a session to ensure continuity.
 
 ## Under the Hood
 
@@ -43,6 +44,8 @@ The extension maintains all its data in the `.gemini-workspace-history/` directo
 ### Technical Implementation
 
 - **Lifecycle Hooks:**
-    - `SessionStart`: Executes `hooks/on-start.js` to prepare the active context from the most recent summary.
-    - `SessionEnd`: Executes `hooks/on-end.js` to read the session transcript and store it as a compressed Gzip file.
+    - `SessionStart`: Executes `hooks/on-start.js` to prepare the active context from the most recent session summary and history.
+    - `SessionEnd`: Executes `hooks/on-end.js` to archive the session transcript as a compressed Gzipped JSON file.
 - **Context Injection:** The `gemini-extension.json` manifest is configured with `contextFileName: ".gemini-workspace-history/active-context.md"`, which the CLI uses to automatically include the file in every session.
+- **Hooks Configuration:** Lifecycle hooks are managed via `hooks/hooks.json`.
+- **Skills:** Includes the `workspace-summarizer` skill to help maintain session continuity.
