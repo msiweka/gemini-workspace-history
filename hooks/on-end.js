@@ -24,7 +24,7 @@ async function main() {
     try {
         data = JSON.parse(input);
     } catch (e) {
-        log(`Failed to parse input: ${e.message}`);
+        console.error(`Failed to parse input: ${e.message}`);
         return;
     }
 
