@@ -30,7 +30,7 @@ gemini extension link .
 
 ### Commands
 
-- `/close-workspace`: Prompts the agent to write a structured technical summary of the current session and then saves it using `commands/summarize.js` before exiting. This is the recommended way to end a session to ensure continuity.
+- `/close-workspace`: Prompts the agent to write a structured technical summary of the current session and then saves it to `.gemini-workspace-history/` using standard tools before exiting. This is the recommended way to end a session to ensure continuity.
 
 ## Under the Hood
 
