@@ -6,7 +6,7 @@ Provide a detailed technical summary of this session's progress. Your summary MU
 2. ## Technical Changes: A bulleted list of specific file modifications, new files created, and key logic changes.
 3. ## Architectural Decisions: A summary of the design choices and technical trade-offs made.
 
-Use your tools to save this summary into the `.gemini-workspace-history/` directory. The filename MUST follow the format `summary-YYYY-MM-DD-HH-mm.md` (e.g., `summary-2026-04-21-14-30.md`) based on the current date and time. 
+Use your tools to save this summary into the `.gemini-workspace-history/` directory of the CURRENT WORKSPACE (the one you are currently working in). The filename MUST follow the format `summary-YYYY-MM-DD-HH-mm.md` (e.g., `summary-2026-04-21-14-30.md`) based on the current date and time. 
 
 The content should follow this format:
 # Session Summary - [Current Locale Date/Time]
