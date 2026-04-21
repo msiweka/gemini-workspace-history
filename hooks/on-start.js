@@ -4,27 +4,48 @@ import zlib from 'zlib';
 import { promisify } from 'util';
 
 const gunzip = promisify(zlib.gunzip);
-const HISTORY_DIR = '.gemini-workspace-history';
 
-async function getAllFiles(pattern) {
-    if (!fs.existsSync(HISTORY_DIR)) return [];
-    return fs.readdirSync(HISTORY_DIR)
+async function getAllFiles(historyDir, pattern) {
+    if (!fs.existsSync(historyDir)) return [];
+    return fs.readdirSync(historyDir)
         .filter(f => pattern.test(f))
         .map(name => ({
             name,
-            path: path.join(HISTORY_DIR, name),
-            mtime: fs.statSync(path.join(HISTORY_DIR, name)).mtime
+            path: path.join(historyDir, name),
+            mtime: fs.statSync(path.join(historyDir, name)).mtime
         }))
         .sort((a, b) => b.mtime - a.mtime);
 }
 
 async function main() {
+    let input = '';
+    try {
+        // We use synchronous read for simplicity in hooks
+        input = fs.readFileSync(0, 'utf8');
+    } catch (e) {
+        // Fallback if no stdin
+    }
+
+    let cwd = process.cwd();
+    if (input && input.trim() !== '') {
+        try {
+            const data = JSON.parse(input);
+            if (data.cwd) {
+                cwd = data.cwd;
+            }
+        } catch (e) {
+            // Invalid JSON, fallback to process.cwd()
+        }
+    }
+
+    const HISTORY_DIR = path.join(cwd, '.gemini-workspace-history');
+
     if (!fs.existsSync(HISTORY_DIR)) {
         fs.mkdirSync(HISTORY_DIR, { recursive: true });
     }
 
-    const sessions = await getAllFiles(/^session-.*\.json\.gz$/);
-    const summaries = await getAllFiles(/^summary-.*\.md$/);
+    const sessions = await getAllFiles(HISTORY_DIR, /^session-.*\.json\.gz$/);
+    const summaries = await getAllFiles(HISTORY_DIR, /^summary-.*\.md$/);
     
     const latestSession = sessions[0];
     const secondLatestSession = sessions[1];
@@ -35,7 +56,6 @@ async function main() {
     let systemMessage = "";
     let isSummaryCurrent = false;
 
-    // A summary is current if it's newer than the end of the session BEFORE the last one.
     if (latestSummary) {
         if (!secondLatestSession || latestSummary.mtime > secondLatestSession.mtime) {
             isSummaryCurrent = true;
@@ -61,7 +81,6 @@ async function main() {
         fs.writeFileSync(activeContextPath, systemMessage);
     }
 
-    // Success output with the dynamic system message
     process.stdout.write(JSON.stringify({
         systemMessage: systemMessage
     }));
