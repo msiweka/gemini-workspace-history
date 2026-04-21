@@ -1,0 +1,5 @@
+node_modules/
+.gemini-workspace-history/
+.gemini-extension.json.lock
+*.log
+.DS_Store
