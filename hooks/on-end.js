@@ -4,12 +4,10 @@ import zlib from 'zlib';
 import { promisify } from 'util';
 
 const gzip = promisify(zlib.gzip);
-const HISTORY_DIR = '.gemini-workspace-history';
 
 async function main() {
     let input = '';
     try {
-        // Read stdin synchronously to ensure we get data before process exit
         input = fs.readFileSync(0, 'utf8');
     } catch (e) {
         console.error(`Error reading stdin: ${e.message}`);
@@ -29,6 +27,8 @@ async function main() {
     }
 
     const transcriptPath = data.transcript_path;
+    const cwd = data.cwd || process.cwd();
+    const HISTORY_DIR = path.join(cwd, '.gemini-workspace-history');
 
     if (!transcriptPath || !fs.existsSync(transcriptPath)) {
         console.error(`Transcript file missing: ${transcriptPath}`);
