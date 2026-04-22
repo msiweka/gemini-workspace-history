@@ -35,6 +35,10 @@ test('Hooks save to payload cwd, not process cwd', async (t) => {
     assert.strictEqual(startResult.status, 0, 'on-start.js should exit with status 0');
     assert.ok(fs.existsSync(historyDir), 'HISTORY_DIR should be created in payload cwd by on-start.js');
     assert.ok(fs.existsSync(path.join(historyDir, 'active-context.md')), 'active-context.md should be created');
+
+    // 3.1 Verify empty output to prevent duplicate summaries
+    const startOutput = JSON.parse(startResult.stdout);
+    assert.deepStrictEqual(startOutput, {}, 'on-start.js should return an empty object to prevent duplicate summaries');
     
     // 4. Test on-end.js
     const endResult = spawnSync('node', [path.join(ROOT_DIR, 'hooks', 'on-end.js')], {
@@ -50,6 +54,46 @@ test('Hooks save to payload cwd, not process cwd', async (t) => {
 
     // Cleanup
     fs.rmSync(tempWorkspace, { recursive: true, force: true });
+});
+
+test('Version consistency', (t) => {
+    const pkg = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package.json'), 'utf8'));
+    const ext = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'gemini-extension.json'), 'utf8'));
+    
+    assert.strictEqual(pkg.version, ext.version, 'package.json and gemini-extension.json versions should match');
+});
+
+test('Version must be greater than on main', (t) => {
+    try {
+        const mainPkgRaw = spawnSync('git', ['show', 'main:package.json'], { encoding: 'utf8' }).stdout;
+        if (!mainPkgRaw) {
+            console.log('Skipping version check: main:package.json not found');
+            return;
+        }
+        const mainPkg = JSON.parse(mainPkgRaw);
+        const currentPkg = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package.json'), 'utf8'));
+
+        const vCurrent = currentPkg.version.split('.').map(Number);
+        const vMain = mainPkg.version.split('.').map(Number);
+
+        let isGreater = false;
+        if (vCurrent[0] > vMain[0]) {
+            isGreater = true;
+        } else if (vCurrent[0] === vMain[0]) {
+            if (vCurrent[1] > vMain[1]) {
+                isGreater = true;
+            } else if (vCurrent[1] === vMain[1]) {
+                if (vCurrent[2] > vMain[2]) {
+                    isGreater = true;
+                }
+            }
+        }
+
+        assert.ok(isGreater, `Current version (${currentPkg.version}) must be strictly greater than main version (${mainPkg.version})`);
+    } catch (e) {
+        if (e.message.includes('must be strictly greater')) throw e;
+        console.log('Skipping version check (likely no main branch yet): ', e.message);
+    }
 });
 
 test('on-start.js fallback to process.cwd() when stdin is empty', async (t) => {

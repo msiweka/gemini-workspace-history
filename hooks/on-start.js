@@ -81,9 +81,7 @@ async function main() {
         fs.writeFileSync(activeContextPath, systemMessage);
     }
 
-    process.stdout.write(JSON.stringify({
-        systemMessage: systemMessage
-    }));
+    process.stdout.write(JSON.stringify({}));
 }
 
 main().catch(console.error);
