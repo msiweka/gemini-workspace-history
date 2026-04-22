@@ -60,11 +60,8 @@ test('Version consistency', (t) => {
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package.json'), 'utf8'));
     const ext = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'gemini-extension.json'), 'utf8'));
     const lock = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package-lock.json'), 'utf8'));
-    const lock = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package-lock.json'), 'utf8'));
     
     assert.strictEqual(pkg.version, ext.version, 'package.json and gemini-extension.json versions should match');
-    assert.strictEqual(pkg.version, lock.version, 'package.json and package-lock.json versions should match');
-    assert.strictEqual(pkg.version, lock.packages[""].version, 'package.json and package-lock.json package versions should match');
     assert.strictEqual(pkg.version, lock.version, 'package.json and package-lock.json versions should match');
     assert.strictEqual(pkg.version, lock.packages[""].version, 'package.json and package-lock.json package versions should match');
 });
