@@ -60,28 +60,50 @@ test('Version consistency', (t) => {
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package.json'), 'utf8'));
     const ext = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'gemini-extension.json'), 'utf8'));
     const lock = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package-lock.json'), 'utf8'));
+    const lock = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package-lock.json'), 'utf8'));
     
     assert.strictEqual(pkg.version, ext.version, 'package.json and gemini-extension.json versions should match');
+    assert.strictEqual(pkg.version, lock.version, 'package.json and package-lock.json versions should match');
+    assert.strictEqual(pkg.version, lock.packages[""].version, 'package.json and package-lock.json package versions should match');
     assert.strictEqual(pkg.version, lock.version, 'package.json and package-lock.json versions should match');
     assert.strictEqual(pkg.version, lock.packages[""].version, 'package.json and package-lock.json package versions should match');
 });
 
 test('Version must be greater than on main', (t) => {
     try {
-        // In CI, HEAD is often detached or named differently
         const headCommit = spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim();
-        const mainCommit = spawnSync('git', ['rev-parse', 'main'], { encoding: 'utf8' }).stdout.trim();
         
-        if (headCommit === mainCommit) {
+        let mainCommit = '';
+        const tryMain = spawnSync('git', ['rev-parse', 'main'], { encoding: 'utf8' });
+        const tryOriginMain = spawnSync('git', ['rev-parse', 'origin/main'], { encoding: 'utf8' });
+        
+        if (tryMain.status === 0) {
+            mainCommit = tryMain.stdout.trim();
+        } else if (tryOriginMain.status === 0) {
+            mainCommit = tryOriginMain.stdout.trim();
+        }
+
+        if (mainCommit && headCommit === mainCommit) {
             console.log('Skipping strict version check: currently on the main branch commit');
             return;
         }
 
-        const mainPkgRaw = spawnSync('git', ['show', 'main:package.json'], { encoding: 'utf8' }).stdout;
+        // Try to get main package.json from either 'main' or 'origin/main'
+        let mainPkgRaw = '';
+        const tryShowMain = spawnSync('git', ['show', 'main:package.json'], { encoding: 'utf8' });
+        const tryShowOriginMain = spawnSync('git', ['show', 'origin/main:package.json'], { encoding: 'utf8' });
+        
+        if (tryShowMain.status === 0) {
+            mainPkgRaw = tryShowMain.stdout;
+        } else if (tryShowOriginMain.status === 0) {
+            mainPkgRaw = tryShowOriginMain.stdout;
+        }
+
         if (!mainPkgRaw) {
-            console.log('Skipping version check: main:package.json not found');
+            console.log('Skipping version check: could not find package.json on main or origin/main');
             return;
         }
+        
         const mainPkg = JSON.parse(mainPkgRaw);
         const currentPkg = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package.json'), 'utf8'));
 
@@ -104,7 +126,8 @@ test('Version must be greater than on main', (t) => {
         assert.ok(isGreater, `Current version (${currentPkg.version}) must be strictly greater than main version (${mainPkg.version})`);
     } catch (e) {
         if (e.message.includes('must be strictly greater')) throw e;
-        console.log('Skipping version check (likely no main branch yet or git error): ', e.message);
+        console.error('Error during version check: ', e.message);
+        // We don't want to fail the whole suite if git is missing, but we want to know about it
     }
 });
 
