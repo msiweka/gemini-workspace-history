@@ -63,6 +63,39 @@ test('Version consistency', (t) => {
     assert.strictEqual(pkg.version, ext.version, 'package.json and gemini-extension.json versions should match');
 });
 
+test('Version must be greater than on main', (t) => {
+    try {
+        const mainPkgRaw = spawnSync('git', ['show', 'main:package.json'], { encoding: 'utf8' }).stdout;
+        if (!mainPkgRaw) {
+            console.log('Skipping version check: main:package.json not found');
+            return;
+        }
+        const mainPkg = JSON.parse(mainPkgRaw);
+        const currentPkg = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package.json'), 'utf8'));
+
+        const vCurrent = currentPkg.version.split('.').map(Number);
+        const vMain = mainPkg.version.split('.').map(Number);
+
+        let isGreater = false;
+        if (vCurrent[0] > vMain[0]) {
+            isGreater = true;
+        } else if (vCurrent[0] === vMain[0]) {
+            if (vCurrent[1] > vMain[1]) {
+                isGreater = true;
+            } else if (vCurrent[1] === vMain[1]) {
+                if (vCurrent[2] > vMain[2]) {
+                    isGreater = true;
+                }
+            }
+        }
+
+        assert.ok(isGreater, `Current version (${currentPkg.version}) must be strictly greater than main version (${mainPkg.version})`);
+    } catch (e) {
+        if (e.message.includes('must be strictly greater')) throw e;
+        console.log('Skipping version check (likely no main branch yet): ', e.message);
+    }
+});
+
 test('on-start.js fallback to process.cwd() when stdin is empty', async (t) => {
     const tempWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), 'gemini-fallback-test-'));
     const historyDir = path.join(tempWorkspace, '.gemini-workspace-history');
