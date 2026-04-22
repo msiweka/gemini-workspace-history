@@ -4,6 +4,7 @@
   "description": "Workspace-specific session history and summaries for Gemini CLI",
   "type": "module",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "bump": "node scripts/bump-version.js"
   }
 }

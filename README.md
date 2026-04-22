@@ -49,3 +49,25 @@ The extension maintains all its data in the `.gemini-workspace-history/` directo
 - **Context Injection:** The `gemini-extension.json` manifest is configured with `contextFileName: ".gemini-workspace-history/active-context.md"`, which the CLI uses to automatically include the file in every session.
 - **Hooks Configuration:** Lifecycle hooks are managed via `hooks/hooks.json`.
 - **Skills:** Includes the `workspace-summarizer` skill to help maintain session continuity.
+
+## Development
+
+### Running Tests
+
+To verify the extension's functionality and path resolution:
+
+```bash
+npm test
+```
+
+### Version Management
+
+The project uses a strict versioning policy. Every PR must include a version bump, which is verified by the automated test suite.
+
+To increment the patch version based on the latest git tag:
+
+```bash
+npm run bump
+```
+
+This command will update both `package.json` and `gemini-extension.json` to the next patch version (e.g., `0.1.2` -> `0.1.3`).
