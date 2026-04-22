@@ -84,5 +84,20 @@ console.log(`Bumping from ${baseVersion} to ${newVersion}`);
         
         fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n');
         console.log(`Updated ${path.basename(filePath)}`);
+        
+        // Stage the file
+        spawnSync('git', ['add', filePath], { stdio: 'inherit' });
     }
 });
+
+// Create commit
+console.log('Creating commit...');
+const commitMessage = `chore: bumped version to [${newVersion}]`;
+const commitResult = spawnSync('git', ['commit', '-m', commitMessage], { stdio: 'inherit' });
+
+if (commitResult.status === 0) {
+    console.log(`Successfully committed: ${commitMessage}`);
+} else {
+    console.error('Failed to create commit. Ensure there are changes to commit.');
+}
+
